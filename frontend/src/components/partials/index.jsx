@@ -1,3 +1,4 @@
-export {default as Container} from "./Container"
-export {default as Menu} from "./Menu"
-export {default as Sidebar} from "./Sidebar"
+export * from "./Container";
+export * from "./Menu";
+export * from "./Search";
+export * from "./Sidebar";

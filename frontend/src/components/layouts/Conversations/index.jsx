@@ -1,11 +1,102 @@
-import React, { useContext } from "react";
-import { GlobalContext } from "../../../context";
-import "./index.css"
+import { find, isEmpty } from "lodash";
+import React, { useContext, useEffect, useRef, useState } from "react";
+import { useParams } from "react-router-dom";
+import { Config } from "../../../config";
+import { GlobalContext, SocketContext, UserContext } from "../../../context";
+import { Dropdown } from "../../commons";
+import "./index.css";
 
-const Conversations = () => {
+const ButtonDropdown = ({ trigger, ...rest }) => {
+    return (
+        <div
+            className={`flex-none w-12 h-12 rounded-full hover:shadow hover:bg-gray-100 dark:hover:bg-gray-700 ${
+                trigger ? "bg-gray-100 shadow dark:bg-gray-700" : ""
+            }`}
+        >
+            <button
+                {...rest}
+                className="w-full h-12 flex justify-center rounded-l-md items-center appearance-none focus:outline-none cursor-pointer"
+            >
+                <svg
+                    className="w-6 h-6"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                >
+                    <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z"
+                    />
+                </svg>
+            </button>
+        </div>
+    );
+};
+
+const ContentDropdown = () => {
+    return (
+        <>
+            <a className="block w-full px-4 py-2 hover:text-gray-100 hover:font-semibold hover:bg-violet-700 dark:hover:bg-violet-500">
+                Delete chat
+            </a>
+            <a className="block w-full px-4 py-2 hover:text-gray-100 hover:font-semibold hover:bg-violet-700 dark:hover:bg-violet-500">
+                Clear messages
+            </a>
+        </>
+    );
+};
+
+export const Conversations = () => {
     const {
         global: { sidebarShow },
+        dispatch,
     } = useContext(GlobalContext);
+    const {
+        user: { user, chats },
+    } = useContext(UserContext);
+    const socket = useContext(SocketContext);
+    const [chat, setChat] = useState({});
+    const { _id } = useParams();
+    const input = useRef();
+
+    const handleSubmit = (event) => {
+        event.preventDefault();
+
+        const message = input.current.value.trim();
+
+        if (message !== "") {
+            socket.emit(
+                "message",
+                { to: chat?.user?._id, content: message },
+                (error) => {
+                    dispatch({ type: "set_error", payload: error });
+                }
+            );
+        }
+
+        input.current.value = "";
+    };
+
+    useEffect(() => {
+        if (!isEmpty(user?.chats)) {
+            const filterChats = find(user.chats, { _id });
+            if (isEmpty(filterChats)) {
+                const error = {
+                    code: 404,
+                    status: "Not Found",
+                    message: "Cannot find ref id in chats.",
+                };
+                dispatch({ type: "set_error", payload: { data: error } });
+            } else {
+                setChat(filterChats);
+            }
+        }
+
+        input.current?.focus();
+    }, [user]);
 
     return (
         <div
@@ -14,16 +105,19 @@ const Conversations = () => {
             }`}
         >
             <div className="flex-none flex justify-between items-center px-4 py-2 bg-gray-300 dark:bg-gray-900">
-                <div className="flex-none w-12 h-12 mr-2 rounded-full shadow bg-gray-100 dark:bg-gray-700"></div>
+                <div className="flex-none w-12 overflow-hidden h-12 mr-2 rounded-full shadow bg-gray-100 dark:bg-gray-700">
+                    {chat?.user?.photo ? (
+                        <img className="w-full h-full" src={chat.user.photo} />
+                    ) : (
+                        ""
+                    )}
+                </div>
                 <div className="flex-1 ml-2 overflow-hidden justify-center h-full">
                     <h3 className="truncate font-semibold text-violet-700 dark:text-violet-500">
-                        Triska Mahfud K
+                        {chat?.user?.name}
                     </h3>
                     <p className="truncate text-sm text-gray-500 dark:text-gray-400">
-                        Lorem ipsum dolor, sit amet consectetur adipisicing
-                        elit. Nisi magni velit ea iusto ullam qui, ab,
-                        consequuntur quis at provident quibusdam non repellat
-                        illum, reiciendis blanditiis! Nulla minus magni quia?
+                        Online
                     </p>
                 </div>
                 <div className="flex-none flex items-center pl-4 space-x-2 h-full text-violet-700 dark:text-violet-500">
@@ -45,43 +139,60 @@ const Conversations = () => {
                             </svg>
                         </button>
                     </div>
-                    <div className="flex-none w-12 h-12 rounded-full hover:shadow hover:bg-gray-100 dark:hover:bg-gray-700">
-                        <button className="w-full h-12 flex justify-center rounded-l-md items-center appearance-none focus:outline-none cursor-pointer">
-                            <svg
-                                className="w-6 h-6"
-                                xmlns="http://www.w3.org/2000/svg"
-                                fill="none"
-                                viewBox="0 0 24 24"
-                                stroke="currentColor"
-                            >
-                                <path
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    strokeWidth={2}
-                                    d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z"
-                                />
-                            </svg>
-                        </button>
-                    </div>
+                    <Dropdown
+                        button={ButtonDropdown}
+                        content={ContentDropdown}
+                    ></Dropdown>
                 </div>
             </div>
             <div className="flex-1 pt-2 overflow-y-auto bg-gray-300 dark:bg-gray-900">
                 <div className="flex flex-col px-4 py-2 space-y-3">
-                    <div className="relative self-start px-4 pt-2 pb-6 rounded-md bg-gray-100 dark:bg-gray-600 text-gray-500 dark:text-gray-200">
-                        <p>haloooo jsaih shausag hsuagsiasn nsa</p>
-                        <div className="absolute right-2 bottom-1 text-xs text-gray-400">
-                            12.00
-                        </div>
-                    </div>
-                    <div className="relative self-end px-4 pt-2 pb-6 rounded-md bg-gradient-to-br from-purple-500 to-indigo-500 text-gray-200">
-                        <p>haloooo jsaih shausag hsuagsiasn nsa</p>
-                        <div className="absolute right-2 bottom-1 text-xs text-gray-300">
-                            12.00
-                        </div>
-                    </div>
+                    {chat?.messages?.map((chat) => {
+                        if (chat.type === Config.messageType.send)
+                            return (
+                                <div className="relative self-end px-4 pt-2 pb-6 overflow-hidden rounded-md bg-gradient-to-br from-purple-500 to-indigo-500 text-gray-200">
+                                    <p>{chat.content || ""}</p>
+                                    <div className="absolute right-2 truncate bottom-1 text-xs text-gray-300">
+                                        {chat.date
+                                            ? `${(
+                                                  "0" +
+                                                  new Date(chat.date).getHours()
+                                              ).slice(-2)}.${(
+                                                  "0" +
+                                                  new Date(
+                                                      chat.date
+                                                  ).getMinutes()
+                                              ).slice(-2)}`
+                                            : ""}
+                                    </div>
+                                </div>
+                            );
+                        else if (chat.type === Config.messageType.receive)
+                            return (
+                                <div className="relative self-start px-4 pt-2 pb-6 overflow-hidden rounded-md bg-gray-100 dark:bg-gray-600 text-gray-500 dark:text-gray-200">
+                                    <p>{chat.content || ""}</p>
+                                    <div className="absolute right-2 bottom-1 text-xs truncate text-gray-400">
+                                        {chat.date
+                                            ? `${(
+                                                  "0" +
+                                                  new Date(chat.date).getHours()
+                                              ).slice(-2)}.${(
+                                                  "0" +
+                                                  new Date(
+                                                      chat.date
+                                                  ).getMinutes()
+                                              ).slice(-2)}`
+                                            : ""}
+                                    </div>
+                                </div>
+                            );
+                    })}
                 </div>
             </div>
-            <form className="flex-none flex justify-between space-x-3 shadow-md items-center px-4 py-2 bg-gray-300 dark:bg-gray-900">
+            <form
+                onSubmit={handleSubmit}
+                className="flex-none flex justify-between space-x-3 shadow-md items-center px-4 py-2 bg-gray-300 dark:bg-gray-900"
+            >
                 <div className="flex-1 flex justify-center h-full">
                     <div className="relative w-full text-gray-400 focus-within:text-gray-600 dark:focus-within:text-gray-300">
                         <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -99,6 +210,7 @@ const Conversations = () => {
                             </svg>
                         </div>
                         <input
+                            ref={input}
                             className="py-3 px-4 bg-gray-100 dark:bg-gray-700 placeholder-gray-400 text-gray-900 dark:text-gray-300 rounded-full shadow-md appearance-none w-full block pl-12 focus:outline-none"
                             placeholder="Type a message here ..."
                         />
@@ -107,7 +219,7 @@ const Conversations = () => {
                 <div className="flex-none w-12 relative flex items-center h-full">
                     <button
                         className="flex-shrink-0 absolute flex justify-center items-center font-semibold w-12 h-12 focus:outline-none rounded-full text-violet-700 dark:text-violet-500"
-                        type="button"
+                        type="submit"
                     >
                         <svg
                             className="h-8 w-8 transition duration-200 transform hover:scale-125"
@@ -129,5 +241,3 @@ const Conversations = () => {
         </div>
     );
 };
-
-export default Conversations;

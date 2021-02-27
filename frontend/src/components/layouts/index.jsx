@@ -1,3 +1,4 @@
-export { default as Call } from "./Call";
-export { default as Conversations } from "./Conversations";
-export { default as Profile } from "./Profile";
+export * from "./Call";
+export * from "./Conversations";
+export * from "./MyProfile";
+export * from "./Profile";

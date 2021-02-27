@@ -1,0 +1,1 @@
+export const ErrorHandler = (code, status, message) => ({ code, status, message })

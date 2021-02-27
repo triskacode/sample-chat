@@ -1,9 +1,8 @@
 import React, { useContext } from "react";
-import { Link } from "react-router-dom";
 import { GlobalContext } from "../../../context";
 import "./index.css";
 
-const Login = () => {
+export const Login = () => {
     const {
         global: { darkMode },
         dispatch,
@@ -88,8 +87,8 @@ const Login = () => {
                             </div>
                         </div>
 
-                        <Link
-                            to="/dashboard"
+                        <a
+                            href="/auth/google"
                             className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-md rounded-md text-white bg-gradient-to-br from-violet-700 to-indigo-700 focus:outline-none transition duration-200 transform hover:scale-105"
                         >
                             <span className="absolute left-0 inset-y-0 flex items-center pl-3">
@@ -167,12 +166,10 @@ const Login = () => {
                                 </svg>
                             </span>
                             Google
-                        </Link>
+                        </a>
                     </div>
                 </div>
             </div>
         </div>
     );
 };
-
-export default Login;

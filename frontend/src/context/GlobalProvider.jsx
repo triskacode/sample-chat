@@ -1,10 +1,10 @@
-import React, { createContext, useReducer } from "react";
+import React, { createContext, useEffect, useReducer } from "react";
 
 const initialState = {
     error: {},
     darkMode: false,
     sidebarShow: true,
-    loading: false,
+    loading: true,
 };
 
 const reducer = (state, action) => {
@@ -26,6 +26,26 @@ export const GlobalContext = createContext();
 
 export const GlobalProvider = ({ children }) => {
     const [global, dispatch] = useReducer(reducer, initialState);
+
+    useEffect(() => {
+        const darkMode = localStorage.getItem("dark_mode") === "true";
+        if (darkMode !== null) {
+            dispatch({ type: "set_dark_mode", payload: darkMode });
+        }
+
+        const sidebarShow = localStorage.getItem("sidebar_show") === "true";
+        if (sidebarShow !== null) {
+            dispatch({ type: "set_sidebar_show", payload: sidebarShow });
+        }
+    }, []);
+
+    useEffect(() => {
+        localStorage.setItem("dark_mode", global.darkMode);
+    }, [global.darkMode]);
+
+    useEffect(() => {
+        localStorage.setItem("sidebar_show", global.sidebarShow);
+    }, [global.sidebarShow]);
 
     return (
         <GlobalContext.Provider value={{ global, dispatch }}>

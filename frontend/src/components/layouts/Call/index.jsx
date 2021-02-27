@@ -1,7 +1,7 @@
 import React from "react";
 import "./index.css";
 
-const Call = () => {
+export const Call = () => {
     return (
         <div className="absolute top-0 bottom-0 right-0 left-0 py-16 blur flex flex-col justify-between items-center">
             <div className="flex flex-col items-center">
@@ -53,5 +53,3 @@ const Call = () => {
         </div>
     );
 };
-
-export default Call;

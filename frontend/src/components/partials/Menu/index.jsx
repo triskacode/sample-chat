@@ -1,23 +1,59 @@
-import React, { useContext } from "react";
-import { Link } from "react-router-dom";
+import React, { useContext, useEffect, useState } from "react";
+import { Link, useLocation } from "react-router-dom";
 import { GlobalContext } from "../../../context";
 import "./index.css";
 
-const Menu = () => {
+export const Menu = () => {
     const {
         global: { sidebarShow, darkMode },
         dispatch,
     } = useContext(GlobalContext);
+    const location = useLocation();
+    const [activeMenu, setActiveMenu] = useState("");
+    const menu = {
+        dashboard: {
+            name: "dashboard",
+            pattern: /^\/dashboard(\/)?$/,
+        },
+        conversations: {
+            name: "conversations",
+            pattern: /^\/dashboard\/conversations(\/(.*)?)?$/,
+        },
+        search: {
+            name: "search",
+            pattern: /^\/dashboard\/search(\/)?$/,
+        },
+    };
 
     const toggleSidebarShow = () => {
-        console.log("sidebar toggled", sidebarShow);
         return dispatch({ type: "set_sidebar_show", payload: !sidebarShow });
     };
 
-    const toggleDarkMode = () => {
-        console.log("dark mode toggled", darkMode);
-        return dispatch({ type: "set_dark_mode", payload: !darkMode });
+    const showSidebar = () => {
+        dispatch({ type: "set_sidebar_show", payload: true });
     };
+
+    const toggleDarkMode = () => {
+        dispatch({ type: "set_dark_mode", payload: !darkMode });
+    };
+
+    useEffect(() => {
+        const testMatch = (pattern, string) => {
+            const regex = new RegExp(pattern);
+
+            return regex.test(string);
+        };
+
+        if (testMatch(menu.dashboard.pattern, location.pathname)) {
+            setActiveMenu(menu.dashboard.name);
+        }
+        if (testMatch(menu.conversations.pattern, location.pathname)) {
+            setActiveMenu(menu.conversations.name);
+        }
+        if (testMatch(menu.search.pattern, location.pathname)) {
+            setActiveMenu(menu.search.name);
+        }
+    }, [location]);
 
     return (
         <div className="flex-none flex flex-col py-2 justify-between items-end w-14 h-screen bg-gray-200 dark:bg-gray-800 text-violet-700 dark:text-violet-500">
@@ -33,8 +69,33 @@ const Menu = () => {
                     </svg>
                 </button>
                 <Link
+                    to="/dashboard"
+                    onClick={showSidebar}
+                    className={`group w-full h-12 flex justify-center rounded-l-md items-center appearance-none focus:outline-none cursor-pointer ${
+                        activeMenu === menu.dashboard.name ? "active" : ""
+                    }`}
+                >
+                    <svg
+                        className="w-6 h-6 transition duration-200 transform group-hover:scale-125"
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                    >
+                        <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0zm6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                        />
+                    </svg>
+                </Link>
+                <Link
                     to="/dashboard/conversations"
-                    className="group w-full h-12 flex justify-center rounded-l-md items-center appearance-none focus:outline-none cursor-pointer bg-gray-100 dark:bg-gray-700"
+                    onClick={showSidebar}
+                    className={`group w-full h-12 flex justify-center rounded-l-md items-center appearance-none focus:outline-none cursor-pointer ${
+                        activeMenu === menu.conversations.name ? "active" : ""
+                    }`}
                 >
                     <svg
                         className="w-6 h-6 transition duration-200 transform group-hover:scale-125"
@@ -51,7 +112,13 @@ const Menu = () => {
                         />
                     </svg>
                 </Link>
-                <button className="group w-full h-12 flex justify-center rounded-l-md items-center appearance-none focus:outline-none cursor-pointer">
+                <Link
+                    to="/dashboard/search"
+                    onClick={showSidebar}
+                    className={`group w-full h-12 flex justify-center rounded-l-md items-center appearance-none focus:outline-none cursor-pointer ${
+                        activeMenu === menu.search.name ? "active" : ""
+                    }`}
+                >
                     <svg
                         className="w-6 h-6 transition duration-200 transform group-hover:scale-125"
                         xmlns="http://www.w3.org/2000/svg"
@@ -66,9 +133,9 @@ const Menu = () => {
                             d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
                         />
                     </svg>
-                </button>
-                <Link
-                    to="/"
+                </Link>
+                <a
+                    href="/auth/logout"
                     className="group w-full h-12 flex justify-center rounded-l-md items-center appearance-none focus:outline-none cursor-pointer"
                 >
                     <svg
@@ -85,7 +152,7 @@ const Menu = () => {
                             d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
                         />
                     </svg>
-                </Link>
+                </a>
             </div>
             <div className="w-14 flex flex-col">
                 <button
@@ -124,25 +191,6 @@ const Menu = () => {
                         </svg>
                     )}
                 </button>
-                <Link
-                    to="/dashboard"
-                    className="group w-full h-12 flex justify-center rounded-l-md items-center appearance-none focus:outline-none cursor-pointer"
-                >
-                    <svg
-                        className="w-6 h-6 transition duration-200 transform group-hover:scale-125"
-                        xmlns="http://www.w3.org/2000/svg"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                    >
-                        <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0zm6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-                        />
-                    </svg>
-                </Link>
                 <button
                     onClick={toggleSidebarShow}
                     className="group w-full h-12 mb-2 flex justify-center items-center appearance-none focus:outline-none cursor-pointer"
@@ -166,5 +214,3 @@ const Menu = () => {
         </div>
     );
 };
-
-export default Menu;
