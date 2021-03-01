@@ -96,9 +96,13 @@ export const Conversations = () => {
             }
         }
 
-        containerMessage.current.scrollTop = containerMessage.current.scrollHeight;
         input.current?.focus();
     }, [user]);
+
+    useEffect(() => {
+        containerMessage.current.scrollTop =
+            containerMessage.current.scrollHeight;
+    }, [chat]);
 
     return (
         <div
@@ -169,7 +173,10 @@ export const Conversations = () => {
                     ></Dropdown>
                 </div>
             </div>
-            <div ref={containerMessage} className="flex-1 pt-2 overflow-y-auto bg-gray-300 dark:bg-gray-900">
+            <div
+                ref={containerMessage}
+                className="flex-1 pt-2 overflow-y-auto bg-gray-300 dark:bg-gray-900"
+            >
                 <div className="flex flex-col px-4 py-2 space-y-3">
                     {chat?.messages?.map((chat) => {
                         if (chat.type === Config.messageType.send)

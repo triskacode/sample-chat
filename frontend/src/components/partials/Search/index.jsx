@@ -99,7 +99,6 @@ export const Search = () => {
         if (email !== "") {
             UserApi.search({ email })
                 .then(({ data: users }) => {
-                    console.log(email, users);
                     setUsers(users);
                 })
                 .catch((error) => {
