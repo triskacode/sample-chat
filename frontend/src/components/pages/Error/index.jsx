@@ -30,6 +30,8 @@ export const Error = () => {
         } else {
             setError(globalError);
         }
+
+        console.log(globalError)
     }, [globalError]);
 
     if (!globalError || Object.keys(global.error).length === 0) {

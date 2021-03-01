@@ -13,20 +13,13 @@ import { Container } from "../components/partials";
 const RenderContent = () => {
     const { global } = useContext(GlobalContext);
 
-    useEffect(() => {
-        console.log(global.error)
-    }, [global.error])
-
     if (global.error && Object.keys(global.error).length !== 0) {
         return <Error></Error>;
     }
 
-    if (global.loading === true) {
-        return <Loading></Loading>;
-    }
-
     return (
         <>
+            {global.loading === true ? <Loading></Loading> : ""}
             <Switch>
                 <GuestRoute path="/" exact>
                     <Login></Login>

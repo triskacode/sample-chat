@@ -13,7 +13,6 @@ export const socketio = (server) => {
         resave: false,
         saveUninitialized: false,
         store: new sessionConnectMongo({ mongooseConnection: Mongo }),
-        unset: 'destroy'
     }
 
     const wrap = (middleware) => (socket, next) => middleware(socket.request, {}, next)

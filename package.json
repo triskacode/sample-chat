@@ -2,15 +2,16 @@
   "name": "sample-chat",
   "version": "1.0.0",
   "description": "",
-  "main": "backend/index.js",
+  "main": "backend/src/index.js",
   "license": "MIT",
   "engines": {
-      "node": "15.x"
+    "node": "15.x"
   },
   "scripts": {
-      "start": "npm run start --prefix=backend",
-      "dev": "npm run dev --prefix=frontend && npm run dev --prefix=backend",
-      "build": "npm run build --prefix=frontend && npm run build --prefix=backend"
+    "start": "npm run start --prefix=backend",
+    "dev": "npm run build --prefix=frontend && npm run dev --prefix=backend",
+    "build": "npm run install && npm run build --prefix=frontend",
+    "install": "npm install --prefix=frontend && npm install --prefix=backend"
   },
   "keywords": [],
   "author": ""

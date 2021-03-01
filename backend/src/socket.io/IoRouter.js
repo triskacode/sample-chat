@@ -3,6 +3,7 @@ import _ from "lodash"
 import { MessageType } from "../models/UserModel.js"
 
 export const IoRouter = (io) => (socket) => {
+    console.log("connect")
     socket.on("init", async (callback) => {
         const user = await socket.request?.user
 
@@ -12,8 +13,7 @@ export const IoRouter = (io) => (socket) => {
         } catch (error) {
             callback(ErrorHandler(500, "Internal Server Error", "Cannot initialize socket.io session."))
         }
-        
-        console.log(user)
+
         console.log(`new socket.io connection: ${user.email}`)
 
         socket.emit("connection established", user)
@@ -63,7 +63,6 @@ export const IoRouter = (io) => (socket) => {
         } catch (error) {
             console.log(ErrorHandler(500, "Internal Server Error", "Cannot destroy socket.io session."), socket.request.user)
         }
-        console.log(user)
 
         console.log(`disconnect socket.io connection: ${user.email}`)
     })

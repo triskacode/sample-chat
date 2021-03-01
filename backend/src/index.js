@@ -45,17 +45,17 @@ app.get('/auth/google/callback',
         failureRedirect: '/login'
     }));
 
-app.get("/auth/logout", middleware.auth, async (req, res) => {
-    console.log("logout")
+app.get("/auth/logout", middleware.auth, (req, res) => {
     const socketId = req.session.socketId
 
     if (socketId && io.of('/').sockets.has(socketId)) {
         io.of('/').sockets.get(socketId).disconnect(true)
     }
     
-    await req.session.destroy()
+    console.log("logout")
+    
+    req.session.destroy()
     req.logout()
-    console.log(req.session, req.user)
     res.redirect("/")
 })
 
