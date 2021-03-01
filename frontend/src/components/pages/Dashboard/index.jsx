@@ -34,15 +34,17 @@ export const Dashboard = () => {
                 </AuthRoute>
             </Switch>
             <Switch>
-                <AuthRoute
-                    path={["/dashboard/search", "/dashboard/profile/:_id"]}
-                    exact
-                >
-                    <Search></Search>
-                </AuthRoute>
                 <AuthRoute path="/dashboard" exact>
                     <div className="hidden sm:block">
                         <Sidebar></Sidebar>
+                    </div>
+                </AuthRoute>
+                <AuthRoute path="/dashboard/search" exact>
+                    <Search></Search>
+                </AuthRoute>
+                <AuthRoute path="/dashboard/profile/:_id" exact>
+                    <div className="hidden sm:block">
+                        <Search></Search>
                     </div>
                 </AuthRoute>
                 <AuthRoute path="/dashboard/conversations" exact>
