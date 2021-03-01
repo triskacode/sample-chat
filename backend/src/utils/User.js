@@ -65,4 +65,4 @@ export const User = {
             throw ErrorHandler(500, "Internal Server Error", "Cannot push chat.")
         }
     }
-} 
+}

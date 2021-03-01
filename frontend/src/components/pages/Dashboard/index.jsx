@@ -22,8 +22,17 @@ export const Dashboard = () => {
     }, [user]);
 
     return (
-        <div className="flex w-full h-full">
-            <Menu></Menu>
+        <div className="flex flex-col sm:flex-row w-full h-full">
+            <Switch>
+                <AuthRoute path="/dashboard/conversations/:_id" exact>
+                    <div className="hidden sm:block">
+                        <Menu></Menu>
+                    </div>
+                </AuthRoute>
+                <AuthRoute path="/dashboard">
+                    <Menu></Menu>
+                </AuthRoute>
+            </Switch>
             <Switch>
                 <AuthRoute
                     path={["/dashboard/search", "/dashboard/profile/:_id"]}
@@ -31,20 +40,31 @@ export const Dashboard = () => {
                 >
                     <Search></Search>
                 </AuthRoute>
-                <AuthRoute path="/dashboard">
+                <AuthRoute path="/dashboard" exact>
+                    <div className="hidden sm:block">
+                        <Sidebar></Sidebar>
+                    </div>
+                </AuthRoute>
+                <AuthRoute path="/dashboard/conversations" exact>
                     <Sidebar></Sidebar>
+                </AuthRoute>
+                <AuthRoute path="/dashboard/conversations/:_id" exact>
+                    <div className="hidden sm:block">
+                        <Sidebar></Sidebar>
+                    </div>
                 </AuthRoute>
             </Switch>
             <Switch>
+                <AuthRoute path={"/dashboard"} exact>
+                    <MyProfile></MyProfile>
+                </AuthRoute>
                 <AuthRoute
-                    path={[
-                        "/dashboard",
-                        "/dashboard/search",
-                        "/dashboard/conversations",
-                    ]}
+                    path={["/dashboard/search", "/dashboard/conversations"]}
                     exact
                 >
-                    <MyProfile></MyProfile>
+                    <div className="hidden sm:flex w-full">
+                        <MyProfile></MyProfile>
+                    </div>
                 </AuthRoute>
                 <AuthRoute path="/dashboard/conversations/:_id" exact>
                     <Conversations></Conversations>

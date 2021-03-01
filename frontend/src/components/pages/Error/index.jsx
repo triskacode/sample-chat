@@ -1,7 +1,6 @@
 import React, { useContext, useEffect, useState } from "react";
 import { useHistory } from "react-router-dom";
 import { GlobalContext } from "../../../context";
-import { isEmpty } from "lodash";
 import "./index.css";
 
 export const Error = () => {
@@ -33,7 +32,7 @@ export const Error = () => {
         }
     }, [globalError]);
 
-    if (isEmpty(globalError)) {
+    if (!globalError || Object.keys(global.error).length === 0) {
         return;
     }
 

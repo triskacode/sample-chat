@@ -50,8 +50,8 @@ export const MyProfile = () => {
 
     return (
         <div
-            className={`flex-1 flex flex-col h-full w-0 overflow-hidden shadow bg-gray-300 dark:bg-gray-900 ${
-                sidebarShow ? "rounded-l-lg" : ""
+            className={`flex-1 flex flex-col h-full w-full overflow-hidden shadow bg-gray-300 dark:bg-gray-900 ${
+                sidebarShow ? "sm:rounded-l-lg" : ""
             }`}
         >
             <div className="flex-none flex justify-end items-center px-4 py-2">

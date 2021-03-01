@@ -9,7 +9,7 @@ export const Container = ({ children }) => {
 
     return (
         <div
-            className={`w-screen h-screen transition duration-200 ease-in-out ${
+            className={`w-screen h-screen transition duration-200 overflow-hidden ease-in-out ${
                 darkMode === true ? "dark" : ""
             }`}
         >

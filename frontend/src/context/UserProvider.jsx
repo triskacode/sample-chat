@@ -37,7 +37,7 @@ export const UserProvider = ({ children }) => {
             UserApiCancelToken[UserApi.detail.name]?.cancelToken?.cancel();
             dispatchGlobal({ type: "set_loading", payload: false });
         };
-    }, []);
+    }, [dispatchGlobal]);
 
     return (
         <UserContext.Provider value={{ user, dispatch }}>

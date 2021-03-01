@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import React, { useContext, useEffect } from "react";
 import { BrowserRouter, Switch } from "react-router-dom";
 import {
     GlobalContext,
@@ -6,7 +6,6 @@ import {
     SocketProvider,
     UserProvider,
 } from "../context";
-import { isEmpty } from "lodash";
 import { AuthRoute, GuestRoute } from "../Routes";
 import { Dashboard, Error, Loading, Login } from "../components/pages";
 import { Container } from "../components/partials";
@@ -14,13 +13,20 @@ import { Container } from "../components/partials";
 const RenderContent = () => {
     const { global } = useContext(GlobalContext);
 
-    if (!isEmpty(global.error)) {
+    useEffect(() => {
+        console.log(global.error)
+    }, [global.error])
+
+    if (global.error && Object.keys(global.error).length !== 0) {
         return <Error></Error>;
+    }
+
+    if (global.loading === true) {
+        return <Loading></Loading>;
     }
 
     return (
         <>
-            {global.loading === true ? <Loading></Loading> : ""}
             <Switch>
                 <GuestRoute path="/" exact>
                     <Login></Login>

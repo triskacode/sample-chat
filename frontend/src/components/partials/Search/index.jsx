@@ -1,4 +1,3 @@
-import { isEmpty, toString } from "lodash";
 import React, { useContext, useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { GlobalContext } from "../../../context";
@@ -32,7 +31,7 @@ const RenderContent = ({ users, input, loading }) => {
             </span>
         );
     } else if (
-        isEmpty(users) &&
+        users.length === 0 &&
         (input?.value === undefined || input?.value === "")
     ) {
         return (
@@ -40,7 +39,7 @@ const RenderContent = ({ users, input, loading }) => {
                 Start chating with search another user.
             </span>
         );
-    } else if (isEmpty(users) && input?.value !== "") {
+    } else if (users.length === 0 && input?.value !== "") {
         return (
             <span className="text-center text-gray-500 dark:text-gray-400">
                 User not found.
@@ -94,12 +93,13 @@ export const Search = () => {
     }, []);
 
     const handleChange = (event) => {
-        const email = toString(event.target.value).trim();
+        const email = event.target.value.toString().trim();
         setLoading(true);
 
         if (email !== "") {
             UserApi.search({ email })
                 .then(({ data: users }) => {
+                    console.log(email, users);
                     setUsers(users);
                 })
                 .catch((error) => {
@@ -117,8 +117,8 @@ export const Search = () => {
 
     return (
         <div
-            className={`flex-none flex flex-col h-screen transition-sizing duration-200 ease-in-out bg-gray-100 dark:bg-gray-700 ${
-                sidebarShow ? "w-72" : "w-0"
+            className={`flex-none flex flex-col w-full h-screen transition-sizing duration-200 ease-in-out bg-gray-100 dark:bg-gray-700 ${
+                sidebarShow ? "sm:w-72" : "sm:w-0"
             }`}
         >
             <div className="flex flex-none justify-between items-center mx-4 my-2 text-gray-500 dark:text-gray-300">

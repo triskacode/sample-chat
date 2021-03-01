@@ -29,7 +29,7 @@ export const Dropdown = ({
             <div
                 className={
                     show
-                        ? `absolute right-0 mt-2 flex w-48 flex-col justify-center items-start shadow-md rounded-md py-2 overflow-hidden text-gray-500 dark:text-gray-400 ${
+                        ? `absolute right-0 mt-2 z-20 flex w-48 flex-col justify-center items-start shadow-md rounded-md py-2 overflow-hidden text-gray-500 dark:text-gray-400 ${
                               background
                                   ? background
                                   : "bg-gray-100 dark:bg-gray-600"

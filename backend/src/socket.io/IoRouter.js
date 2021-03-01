@@ -4,19 +4,16 @@ import { MessageType } from "../models/UserModel.js"
 
 export const IoRouter = (io) => (socket) => {
     socket.on("init", async (callback) => {
-        const session = socket.request.session
         const user = await socket.request?.user
 
         try {
-            session.socketId = socket.id
-            await session.save()
-
             user.socketId = socket.id
             await user.save()
         } catch (error) {
             callback(ErrorHandler(500, "Internal Server Error", "Cannot initialize socket.io session."))
         }
-
+        
+        console.log(user)
         console.log(`new socket.io connection: ${user.email}`)
 
         socket.emit("connection established", user)
@@ -58,18 +55,15 @@ export const IoRouter = (io) => (socket) => {
     })
 
     socket.on("disconnecting", async () => {
-        const session = socket.request.session
         const user = await socket.request.user
 
         try {
-            session.socketId = ""
-            await session.save()
-
             user.socketId = ""
             await user.save()
         } catch (error) {
             console.log(ErrorHandler(500, "Internal Server Error", "Cannot destroy socket.io session."), socket.request.user)
         }
+        console.log(user)
 
         console.log(`disconnect socket.io connection: ${user.email}`)
     })

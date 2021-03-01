@@ -18,7 +18,8 @@ const sessionConfig = {
     secret: Config.session.secretKey,
     resave: false,
     saveUninitialized: false,
-    store: new sessionConnectMongo({ mongooseConnection: Mongo })
+    store: new sessionConnectMongo({ mongooseConnection: Mongo }),
+    unset: 'destroy'
 }
 
 app.use(cors())
@@ -44,16 +45,17 @@ app.get('/auth/google/callback',
         failureRedirect: '/login'
     }));
 
-app.get("/auth/logout", middleware.auth, (req, res) => {
+app.get("/auth/logout", middleware.auth, async (req, res) => {
     console.log("logout")
-    // const socketId = req.session.socketId
+    const socketId = req.session.socketId
 
-    // if (socketId && io.of('/').sockets.has(socketId)) {
-    //     io.of('/').sockets.get(socketId).disconnect(true)
-    // }
-
-    req.logOut()
-    req.session.destroy();
+    if (socketId && io.of('/').sockets.has(socketId)) {
+        io.of('/').sockets.get(socketId).disconnect(true)
+    }
+    
+    await req.session.destroy()
+    req.logout()
+    console.log(req.session, req.user)
     res.redirect("/")
 })
 

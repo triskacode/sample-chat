@@ -1,4 +1,3 @@
-import { find } from "lodash";
 import React, { useContext, useEffect, useState } from "react";
 import { useHistory, useParams } from "react-router-dom";
 import { GlobalContext, UserContext } from "../../../context";
@@ -54,7 +53,9 @@ const ContentDropdown = () => {
 
         UserApi.pushChat({ _id })
             .then(({ data }) => {
-                const filterChats = find(data.chats, { user: { _id } });
+                const filterChats = data.chats.find(
+                    ({ user: { _id: userId } }) => userId === _id
+                );
                 dispatchUser({ type: "set_user", payload: data });
                 history.push(`/dashboard/conversations/${filterChats?._id}`);
             })
@@ -106,7 +107,7 @@ export const Profile = () => {
 
     return (
         <div
-            className={`flex-1 flex flex-col h-full w-0 overflow-hidden shadow bg-gray-300 dark:bg-gray-900 ${
+            className={`flex-1 flex flex-col h-full w-full overflow-hidden shadow bg-gray-300 dark:bg-gray-900 ${
                 sidebarShow ? "rounded-l-lg" : ""
             }`}
         >

@@ -12,7 +12,8 @@ export const socketio = (server) => {
         secret: Config.session.secretKey,
         resave: false,
         saveUninitialized: false,
-        store: new sessionConnectMongo({ mongooseConnection: Mongo })
+        store: new sessionConnectMongo({ mongooseConnection: Mongo }),
+        unset: 'destroy'
     }
 
     const wrap = (middleware) => (socket, next) => middleware(socket.request, {}, next)

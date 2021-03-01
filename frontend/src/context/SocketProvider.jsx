@@ -4,6 +4,11 @@ import { GlobalContext } from "./GlobalProvider";
 import { UserContext } from "./UserProvider";
 
 const socket = io("/");
+// const socket = {
+//     on() {},
+//     off() {},
+//     emit() {},
+// };
 
 export const SocketContext = createContext();
 
@@ -33,7 +38,7 @@ export const SocketProvider = ({ children }) => {
             socket.off("error", errorHandler);
             socket.off("connection established", connectionEstablishedHandler);
         };
-    }, []);
+    }, [dispatchGlobal, dispatchUser]);
 
     return (
         <SocketContext.Provider value={socket}>
