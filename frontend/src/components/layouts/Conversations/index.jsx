@@ -105,7 +105,10 @@ export const Conversations = () => {
             }`}
         >
             <div className="flex-none flex justify-between items-center px-4 py-2 bg-gray-300 dark:bg-gray-900">
-                <Link to="/dashboard/conversations" className="flex-none flex justify-center items-center px-1 h-12 mr-2 rounded-full hover:shadow hover:bg-gray-100 dark:hover:bg-gray-700">
+                <Link
+                    to="/dashboard/conversations"
+                    className="flex-none flex justify-center items-center px-1 h-12 mr-2 rounded-full hover:shadow hover:bg-gray-100 dark:hover:bg-gray-700"
+                >
                     <svg
                         className="w-6 h-6 mr-2 text-violet-700 dark:text-violet-500"
                         xmlns="http://www.w3.org/2000/svg"
@@ -120,11 +123,16 @@ export const Conversations = () => {
                             d="M10 19l-7-7m0 0l7-7m-7 7h18"
                         />
                     </svg>
-                    {chat?.user?.photo ? (
-                        <img className="w-10 h-10 rounded-full" src={chat.user.photo} />
-                    ) : (
-                        ""
-                    )}
+                    <div className="flex-none w-10 h-10 mr-2 overflow-hidden rounded-full bg-gray-100 dark:bg-gray-700">
+                        {chat?.user?.photo ? (
+                            <img
+                                className="w-full h-full"
+                                src={chat.user.photo}
+                            />
+                        ) : (
+                            ""
+                        )}
+                    </div>
                 </Link>
                 <div className="flex-1 ml-2 overflow-hidden justify-center h-full">
                     <h3 className="truncate font-semibold text-violet-700 dark:text-violet-500">
