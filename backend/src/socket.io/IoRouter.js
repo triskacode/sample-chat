@@ -5,7 +5,7 @@ import { MessageType } from "../models/UserModel.js"
 export const IoRouter = (io) => (socket) => {
     console.log("connect")
     socket.on("init", async (callback) => {
-        const user = await req.user.populate("chats.user", "-chats").execPopulate()
+        const user = await socket.request.user.populate("chats.user", "-chats").execPopulate()
 
         try {
             user.socketId = socket.id

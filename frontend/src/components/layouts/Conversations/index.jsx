@@ -123,7 +123,7 @@ export const Conversations = () => {
                             d="M10 19l-7-7m0 0l7-7m-7 7h18"
                         />
                     </svg>
-                    <div className="flex-none w-10 h-10 mr-2 overflow-hidden rounded-full bg-gray-100 dark:bg-gray-700">
+                    <div className="flex-none w-10 h-10 overflow-hidden rounded-full bg-gray-100 dark:bg-gray-700">
                         {chat?.user?.photo ? (
                             <img
                                 className="w-full h-full"
