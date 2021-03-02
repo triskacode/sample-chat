@@ -1,6 +1,7 @@
 import { ErrorHandler, User } from "../utils/index.js"
 import _ from "lodash"
 import { MessageType } from "../models/UserModel.js"
+import mongoose from "mongoose"
 
 export const IoRouter = (io) => (socket) => {
     console.log("connect")
@@ -9,6 +10,8 @@ export const IoRouter = (io) => (socket) => {
 
         try {
             user.socketId = socket.id
+            user.loginState = true
+            user.lastLogin = mongoose.now()
             await user.save()
         } catch (error) {
             callback(ErrorHandler(500, "Internal Server Error", "Cannot initialize socket.io session."))
@@ -22,9 +25,17 @@ export const IoRouter = (io) => (socket) => {
     socket.on("message", async ({ to, content }, callback) => {
         try {
             const sender = await User.findId(socket.request.user._id)
-            const receiver = await User.findId(to)
-            const senderChatIndex = _.findIndex(sender.chats, (chat) => _.toString(chat.user) === _.toString(to))
-            const receiverChatIndex = _.findIndex(receiver.chats, (chat) => _.toString(chat.user) === _.toString(sender._id))
+            const receiver = await (async () => {
+                const receiver = await User.findId(to)
+                if (!_.find(receiver.chats, { user: sender._id })) {
+                    await User.pushChat(sender, receiver)
+                }
+
+                return receiver
+            })()
+
+            const senderChatIndex = _.findIndex(sender.chats, { user: receiver._id })
+            const receiverChatIndex = _.findIndex(receiver.chats, { user: sender._id })
 
             sender.chats[senderChatIndex].messages.push({
                 type: MessageType.send,
@@ -59,6 +70,8 @@ export const IoRouter = (io) => (socket) => {
 
         try {
             user.socketId = ""
+            user.loginState = false
+            user.lastLogin = mongoose.now()
             await user.save()
         } catch (error) {
             console.log(ErrorHandler(500, "Internal Server Error", "Cannot destroy socket.io session."), socket.request.user)

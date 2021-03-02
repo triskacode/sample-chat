@@ -1,6 +1,6 @@
 import mongoose from "mongoose"
 
-const { String, ObjectId, Number, Date } = mongoose.Schema.Types
+const { String, ObjectId, Number, Date, Boolean } = mongoose.Schema.Types
 
 export const MessageType = {
     send: "send",
@@ -27,6 +27,14 @@ const UserSchema = new mongoose.Schema({
         required: true
     },
     socketId: String,
+    loginState: {
+        type: Boolean,
+        default: true
+    },
+    lastLogin: {
+        type: Date,
+        default: mongoose.now()
+    },
     chats: [{
         user: {
             type: ObjectId,

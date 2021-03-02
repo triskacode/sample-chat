@@ -17,6 +17,10 @@ const callback = async function (request, accessToken, refreshToken, profile, do
         const user = await User.find({ googleId }, false)
 
         if (user) {
+            user.name = name
+            user.photo = photo
+            await user.save()
+            
             return done(null, user)
         }
         else {

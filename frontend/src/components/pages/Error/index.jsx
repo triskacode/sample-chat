@@ -34,7 +34,7 @@ export const Error = () => {
         console.log(globalError)
     }, [globalError]);
 
-    if (!globalError || Object.keys(global.error).length === 0) {
+    if (!globalError || Object.keys(globalError).length === 0) {
         return;
     }
 

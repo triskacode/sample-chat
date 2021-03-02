@@ -40,6 +40,11 @@ export const UserApi = {
             }
         );
     },
+    detailLogin(query) {
+        return axios.post("/api/user-detail-login", query, {
+            cancelToken: UserApiCancelToken[this.detailLogin.name].request().token,
+        });
+    },
     find(query) {
         return axios.post("/api/user-find", query, {
             cancelToken: UserApiCancelToken[this.find.name].request().token,
@@ -53,6 +58,16 @@ export const UserApi = {
     pushChat(query) {
         return axios.post("/api/user-push-chat", query, {
             cancelToken: UserApiCancelToken[this.pushChat.name].request().token,
+        });
+    },
+    pullChat(query) {
+        return axios.post("/api/user-pull-chat", query, {
+            cancelToken: UserApiCancelToken[this.pullChat.name].request().token,
+        });
+    },
+    clearMessage(query) {
+        return axios.post("/api/user-clear-message", query, {
+            cancelToken: UserApiCancelToken[this.clearMessage.name].request().token,
         });
     },
 };

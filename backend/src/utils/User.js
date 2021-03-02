@@ -1,5 +1,6 @@
 import { ErrorHandler } from "./index.js"
 import { UserModel } from "../models/UserModel.js"
+import _ from "lodash"
 
 export const User = {
     async store({ googleId, email, name, photo }) {
@@ -8,7 +9,7 @@ export const User = {
 
             return user
         } catch (error) {
-            console.error("Cannot store new user", { googleId, email, name, photo })
+            console.error("Cannot store new user", error, { googleId, email, name, photo })
             throw ErrorHandler(500, "Internal Server Error", "Cannot store user.")
         }
     },
@@ -18,7 +19,7 @@ export const User = {
 
             return user
         } catch (error) {
-            console.error("Cannot find user", _id)
+            console.error("Cannot find user", error, _id)
             throw ErrorHandler(400, "Bad Request", "Cannot find user.")
         }
     },
@@ -39,7 +40,7 @@ export const User = {
             if (error.code) {
                 throw error
             } else {
-                console.error("Cannot find user", query)
+                console.error("Cannot find user", error, query)
                 throw ErrorHandler(500, "Internal Server Error", "Cannot find user.")
             }
         }
@@ -50,19 +51,37 @@ export const User = {
 
             return user
         } catch (error) {
-            console.error("Cannot search user", query)
+            console.error("Cannot search user", error, query)
             throw ErrorHandler(500, "Internal Server Error", "Cannot search user.")
         }
     },
     async pushChat(sender, receiver) {
         try {
             sender.chats.push({ user: receiver._id })
-            await sender.save()
-            receiver.chats.push({ user: sender._id })
-            await receiver.save()
+            return await sender.save()
         } catch (error) {
-            console.error("Cannot push chat", sender, receiver)
+            console.error("Cannot push chat", error, sender, receiver)
             throw ErrorHandler(500, "Internal Server Error", "Cannot push chat.")
         }
-    }
+    },
+    async pullChat(sender, receiver) {
+        try {
+            const chatIndex = _.findIndex(sender.chats, { user: receiver._id })
+            sender.chats.splice(chatIndex, 1)
+            return await sender.save()
+        } catch (error) {
+            console.error("Cannot clear message", error, sender, receiver)
+            throw ErrorHandler(500, "Internal Server Error", "Cannot push chat.")
+        }
+    },
+    async clearMessage(sender, receiver) {
+        try {
+            const chatIndex = _.findIndex(sender.chats, { user: receiver._id })
+            sender.chats[chatIndex].messages = []
+            return await sender.save()
+        } catch (error) {
+            console.error("Cannot clear message", error, sender, receiver)
+            throw ErrorHandler(500, "Internal Server Error", "Cannot push chat.")
+        }
+    },
 }

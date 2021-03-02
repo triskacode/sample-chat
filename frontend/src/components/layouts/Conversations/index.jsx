@@ -1,8 +1,9 @@
 import { find, isEmpty } from "lodash";
 import React, { useContext, useEffect, useRef, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useHistory, useParams } from "react-router-dom";
 import { Config } from "../../../config";
 import { GlobalContext, SocketContext, UserContext } from "../../../context";
+import { UserApi, UserApiCancelToken } from "../../../services";
 import { Dropdown } from "../../commons";
 import "./index.css";
 
@@ -15,7 +16,7 @@ const ButtonDropdown = ({ trigger, ...rest }) => {
         >
             <button
                 {...rest}
-                className="w-full h-12 flex justify-center rounded-l-md items-center appearance-none focus:outline-none cursor-pointer"
+                className="w-full h-12 flex justify-center rounded-l-md items-center focus:outline-none cursor-pointer"
             >
                 <svg
                     className="w-6 h-6"
@@ -36,15 +37,21 @@ const ButtonDropdown = ({ trigger, ...rest }) => {
     );
 };
 
-const ContentDropdown = () => {
+const ContentDropdown = ({ handleDeleteChat, handleClearMessage }) => {
     return (
         <>
-            <a className="block w-full px-4 py-2 hover:text-gray-100 hover:font-semibold hover:bg-violet-700 dark:hover:bg-violet-500">
+            <button
+                onClick={handleDeleteChat}
+                className="block text-left w-full px-4 py-2 focus:outline-none hover:text-gray-100 hover:font-semibold hover:bg-violet-700 dark:hover:bg-violet-500"
+            >
                 Delete chat
-            </a>
-            <a className="block w-full px-4 py-2 hover:text-gray-100 hover:font-semibold hover:bg-violet-700 dark:hover:bg-violet-500">
+            </button>
+            <button
+                onClick={handleClearMessage}
+                className="block text-left w-full px-4 py-2 focus:outline-none hover:text-gray-100 hover:font-semibold hover:bg-violet-700 dark:hover:bg-violet-500"
+            >
                 Clear messages
-            </a>
+            </button>
         </>
     );
 };
@@ -52,18 +59,21 @@ const ContentDropdown = () => {
 export const Conversations = () => {
     const {
         global: { sidebarShow },
-        dispatch,
+        dispatch: dispatchGlobal,
     } = useContext(GlobalContext);
     const {
         user: { user, chats },
+        dispatch: dispatchUser,
     } = useContext(UserContext);
     const socket = useContext(SocketContext);
+    const history = useHistory();
     const [chat, setChat] = useState({});
+    const [loginState, setLoginState] = useState("");
     const { _id } = useParams();
     const input = useRef();
     const containerMessage = useRef();
 
-    const handleSubmit = (event) => {
+    const handleSubmitMessage = (event) => {
         event.preventDefault();
 
         const message = input.current.value.trim();
@@ -73,12 +83,44 @@ export const Conversations = () => {
                 "message",
                 { to: chat?.user?._id, content: message },
                 (error) => {
-                    dispatch({ type: "set_error", payload: error });
+                    console.log(error);
+                    dispatchGlobal({ type: "set_error", payload: error });
                 }
             );
         }
 
         input.current.value = "";
+    };
+
+    const handleClearMessage = (event) => {
+        dispatchGlobal({ type: "set_loading", payload: true });
+
+        UserApi.clearMessage({ _id: chat?.user?._id })
+            .then(({ data }) => {
+                dispatchUser({ type: "set_user", payload: data });
+            })
+            .catch((error) => {
+                dispatchGlobal({ type: "set_error", payload: error });
+            })
+            .then(() => {
+                dispatchGlobal({ type: "set_loading", payload: false });
+            });
+    };
+
+    const handleDeleteChat = (event) => {
+        dispatchGlobal({ type: "set_loading", payload: true });
+
+        UserApi.pullChat({ _id: chat?.user?._id })
+            .then(({ data }) => {
+                dispatchUser({ type: "set_user", payload: data });
+                history.push(`/dashboard/conversations`);
+            })
+            .catch((error) => {
+                dispatchGlobal({ type: "set_error", payload: error });
+            })
+            .then(() => {
+                dispatchGlobal({ type: "set_loading", payload: false });
+            });
     };
 
     useEffect(() => {
@@ -90,13 +132,25 @@ export const Conversations = () => {
                     status: "Not Found",
                     message: "Cannot find ref id in chats.",
                 };
-                dispatch({ type: "set_error", payload: { data: error } });
+                dispatchGlobal({ type: "set_error", payload: { data: error } });
             } else {
                 setChat(filterChats);
+
+                UserApi.detailLogin({ _id: filterChats.user?._id })
+                    .then(({ data }) => {
+                        setLoginState(data);
+                    })
+                    .catch((error) => {
+                        dispatchGlobal({ type: "set_error", payload: error });
+                    });
             }
         }
 
         input.current?.focus();
+
+        return () => {
+            UserApiCancelToken[UserApi.detailLogin.name]?.cancelToken?.cancel();
+        };
     }, [user]);
 
     useEffect(() => {
@@ -145,7 +199,7 @@ export const Conversations = () => {
                         {chat?.user?.name}
                     </h3>
                     <p className="truncate text-sm text-gray-500 dark:text-gray-400">
-                        Online
+                        {loginState}
                     </p>
                 </div>
                 <div className="flex-none flex items-center pl-4 space-x-2 h-full text-violet-700 dark:text-violet-500">
@@ -169,7 +223,12 @@ export const Conversations = () => {
                     </div>
                     <Dropdown
                         button={ButtonDropdown}
-                        content={ContentDropdown}
+                        content={() => (
+                            <ContentDropdown
+                                handleClearMessage={handleClearMessage}
+                                handleDeleteChat={handleDeleteChat}
+                            ></ContentDropdown>
+                        )}
                     ></Dropdown>
                 </div>
             </div>
@@ -221,7 +280,7 @@ export const Conversations = () => {
                 </div>
             </div>
             <form
-                onSubmit={handleSubmit}
+                onSubmit={handleSubmitMessage}
                 className="flex-none flex justify-between space-x-3 shadow-md items-center px-4 py-2 bg-gray-300 dark:bg-gray-900"
             >
                 <div className="flex-1 flex justify-center h-full">
