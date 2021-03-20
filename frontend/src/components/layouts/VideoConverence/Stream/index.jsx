@@ -318,13 +318,12 @@ export const Stream = () => {
 
     useEffect(() => {
         const handleBeforeUnload = (e) => {
-            const message = "o/";
-            (e || window.event).returnValue = message;
-            return message;
+            if (rtc.state !== rtcStateType.free) {
+                closeStream();
+            }
         };
 
         window.addEventListener("beforeunload", handleBeforeUnload);
-        window.addEventListener("unload", closeStream);
 
         return () => {
             if (rtc.state !== rtcStateType.free) {
@@ -332,7 +331,6 @@ export const Stream = () => {
             }
 
             window.removeEventListener("beforeunload", handleBeforeUnload);
-            window.removeEventListener("unload", closeStream);
         };
     }, [location]);
 
