@@ -28,24 +28,20 @@ export const GlobalProvider = ({ children }) => {
     const [global, dispatch] = useReducer(reducer, initialState);
 
     useEffect(() => {
-        const darkMode = localStorage.getItem("dark_mode") === "true";
-        if (darkMode !== null) {
-            dispatch({ type: "set_dark_mode", payload: darkMode });
+        const oldGlobal = JSON.parse(localStorage.getItem("global"));
+
+        if (oldGlobal?.darkMode) {
+            dispatch({ type: "set_dark_mode", payload: oldGlobal.darkMode });
         }
 
-        const sidebarShow = localStorage.getItem("sidebar_show") === "true";
-        if (sidebarShow !== null) {
-            dispatch({ type: "set_sidebar_show", payload: sidebarShow });
+        if (oldGlobal?.sidebarShow) {
+            dispatch({ type: "set_sidebar_show", payload: oldGlobal.sidebarShow });
         }
     }, []);
 
     useEffect(() => {
-        localStorage.setItem("dark_mode", global.darkMode);
-    }, [global.darkMode]);
-
-    useEffect(() => {
-        localStorage.setItem("sidebar_show", global.sidebarShow);
-    }, [global.sidebarShow]);
+        localStorage.setItem("global", JSON.stringify(global));
+    }, [global]);
 
     return (
         <GlobalContext.Provider value={{ global, dispatch }}>

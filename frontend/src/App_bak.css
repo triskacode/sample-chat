@@ -1,0 +1,4 @@
+.blur {
+    @apply bg-gray-400 bg-opacity-25;
+    backdrop-filter: blur(4px);
+}

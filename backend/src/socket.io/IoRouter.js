@@ -1,84 +1,25 @@
-import { ErrorHandler, User } from "../utils/index.js"
-import _ from "lodash"
-import { MessageType } from "../models/UserModel.js"
-import mongoose from "mongoose"
+import { Offer } from "./Offer.js"
+import { Init } from "./Init.js"
+import { Message } from "./Message.js"
+import { Answer } from "./Answer.js"
+import { Reject } from "./Reject.js"
+import { Constraints } from "./Constraints.js"
+import { Signal } from "./Signal.js"
+import { Disconnecting } from "./Disconnecting.js"
+import { CloseRTC } from "./CloseRTC.js"
 
 export const IoRouter = (io) => (socket) => {
-    console.log("connect")
-    socket.on("init", async (callback) => {
-        const user = await socket.request.user.populate("chats.user", "-chats").execPopulate()
+    console.log("new connection: " + socket.id)
 
-        try {
-            user.socketId = socket.id
-            user.loginState = true
-            user.lastLogin = mongoose.now()
-            await user.save()
-        } catch (error) {
-            callback(ErrorHandler(500, "Internal Server Error", "Cannot initialize socket.io session."))
-        }
-
-        console.log(`new socket.io connection: ${user.email}`)
-
-        socket.emit("connection established", user)
-    })
-
-    socket.on("message", async ({ to, content }, callback) => {
-        try {
-            const sender = await User.findId(socket.request.user._id)
-            const receiver = await (async () => {
-                const receiver = await User.findId(to)
-                if (!_.find(receiver.chats, { user: sender._id })) {
-                    await User.pushChat(sender, receiver)
-                }
-
-                return receiver
-            })()
-
-            const senderChatIndex = _.findIndex(sender.chats, { user: receiver._id })
-            const receiverChatIndex = _.findIndex(receiver.chats, { user: sender._id })
-
-            sender.chats[senderChatIndex].messages.push({
-                type: MessageType.send,
-                content
-            })
-            await sender.save()
-            receiver.chats[receiverChatIndex].messages.push({
-                type: MessageType.receive,
-                content
-            })
-            await receiver.save()
-
-            await sender.populate("chats.user", "-chats").execPopulate()
-            await receiver.populate("chats.user", "-chats").execPopulate()
-
-            socket.emit("message", sender)
-            if (!_.isEmpty(receiver?.socketId)) {
-                io.to(receiver.socketId).emit("message", receiver)
-            }
-        } catch (error) {
-            console.log(error)
-            if (error.code) {
-                callback(error)
-            } else {
-                callback(ErrorHandler(500, "Internal Server Error", "Cannot initialize socket.io session."))
-            }
-        }
-    })
-
-    socket.on("disconnecting", async () => {
-        const user = await socket.request.user
-
-        try {
-            user.socketId = ""
-            user.loginState = false
-            user.lastLogin = mongoose.now()
-            await user.save()
-        } catch (error) {
-            console.log(ErrorHandler(500, "Internal Server Error", "Cannot destroy socket.io session."), socket.request.user)
-        }
-
-        console.log(`disconnect socket.io connection: ${user.email}`)
-    })
+    socket.on("init", Init(io, socket))
+    socket.on("message", Message(io, socket))
+    socket.on("offer", Offer(io, socket))
+    socket.on("answer", Answer(io, socket))
+    socket.on("reject", Reject(io, socket))
+    socket.on("close rtc", CloseRTC(io, socket))
+    socket.on("constraints", Constraints(io, socket))
+    socket.on("signal", Signal(io, socket))
+    socket.on("disconnecting", Disconnecting(io, socket))
 
     socket.on("error", (error) => {
         console.log(error)

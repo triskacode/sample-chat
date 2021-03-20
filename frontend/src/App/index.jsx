@@ -3,6 +3,7 @@ import { BrowserRouter, Switch } from "react-router-dom";
 import {
     GlobalContext,
     GlobalProvider,
+    RTCProvider,
     SocketProvider,
     UserProvider,
 } from "../context";
@@ -26,7 +27,9 @@ const RenderContent = () => {
                 </GuestRoute>
                 <AuthRoute path="/dashboard">
                     <SocketProvider>
-                        <Dashboard></Dashboard>
+                        <RTCProvider>
+                            <Dashboard></Dashboard>
+                        </RTCProvider>
                     </SocketProvider>
                 </AuthRoute>
             </Switch>

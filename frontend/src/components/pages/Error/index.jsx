@@ -3,7 +3,7 @@ import { useHistory } from "react-router-dom";
 import { GlobalContext } from "../../../context";
 import "./index.css";
 
-export const Error = () => {
+export const Error = ({ error: errorProps }) => {
     const {
         global: { darkMode, error: globalError },
         dispatch,
@@ -21,21 +21,23 @@ export const Error = () => {
     };
 
     useEffect(() => {
-        if (!globalError.code) {
+        if (errorProps) {
+            setError(errorProps);
+        } else if (globalError.code) {
+            setError(globalError);
+        } else {
             setError({
                 code: 408,
                 status: "Request Time Out",
                 message: "You are offline.",
             });
-        } else {
-            setError(globalError);
         }
 
-        console.log(globalError)
-    }, [globalError]);
+        console.log(globalError);
+    }, [globalError, errorProps]);
 
-    if (!globalError || Object.keys(globalError).length === 0) {
-        return;
+    if (!error) {
+        return "";
     }
 
     return (
