@@ -9,7 +9,7 @@ export const Message = (io, socket) => {
             const otherUser = await (async () => {
                 const otherUser = await User.findId(to)
                 if (!_.find(otherUser.chats, { user: user._id })) {
-                    await User.pushChat(user, otherUser)
+                    await User.pushChat(otherUser, user)
                 }
 
                 return otherUser
